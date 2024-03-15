@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "740611076314",
+    "project_id": "camnangnauan-edaf6",
+    "storage_bucket": "camnangnauan-edaf6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:740611076314:android:45d53501e64353d992b5e3",
+        "android_client_info": {
+          "package_name": "com.example.camnangnauan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpNgwKnkH3dQ7uwBFm4fQBAydb6azEa_I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
