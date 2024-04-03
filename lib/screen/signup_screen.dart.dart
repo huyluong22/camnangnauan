@@ -86,7 +86,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     IconButton(
                       icon: Icon(
                         _isPasswordObscured ? Icons.visibility : Icons.visibility_off,
-                        color: Colors.grey,
+                        color: Colors.white,
                       ),
                       onPressed: () {
                         setState(() {
@@ -111,7 +111,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     IconButton(
                       icon: Icon(
                         _isConfirmPasswordObscured ? Icons.visibility : Icons.visibility_off,
-                        color: Colors.grey,
+                        color: Colors.white,
                       ),
                       onPressed: () {
                         setState(() {
