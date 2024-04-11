@@ -1,3 +1,4 @@
+import 'package:camnangnauan/pages/favoritepage.dart';
 import 'package:camnangnauan/pages/fooddetail.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,22 +25,6 @@ class _HomePageState extends State<HomePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
-  void initState() {
-    super.initState();
-    getCurrentUserID();
-  }
-
-  void getCurrentUserID() {
-    final User? user = _auth.currentUser;
-    if (user != null) {
-      final String userID = user.uid;
-      print('User ID: $userID');
-      // Bạn có thể sử dụng userID ở đây cho mục đích của mình, ví dụ: lấy dữ liệu từ Firestore dựa trên userID.
-    } else {
-      print('User is not logged in.');
-    }
-  }
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
@@ -64,7 +49,7 @@ class _HomePageState extends State<HomePage> {
             case 1: // Favorites button
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SignInScreen()),
+                MaterialPageRoute(builder: (context) => FavoritePage()),
               );
               break;
             case 2: // Logout button
@@ -256,6 +241,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildItem(DocumentSnapshot document) {
+    final List<dynamic> usersLiked = document['UsersLike'] ?? [];
+    final User? user = _auth.currentUser;
+    bool isLiked = false;
+
+    // Check if the current user's ID is in the list of users who liked the food
+    if (user != null && usersLiked.contains(user.uid)) {
+      isLiked = true;
+    }
     final String ten = document['Ten'] ?? '';
     final String anh = document['Anh'] ?? '';
     final String moTa = document['MoTa'] ?? '';
@@ -263,14 +256,13 @@ class _HomePageState extends State<HomePage> {
     final String huongDan = document['HuongDan'] ?? ''; // Thêm thông tin hướng dẫ
     final String typeMon = document['TypeMon'] ?? ''; // Thêm thông tin loại món
     final String UserNotes = document['UserNotes'] ?? '';
-    final String UsersLike = document['UsersLike'] ?? '';
+    final List<dynamic> UsersLike = document['UsersLike'] ?? [];
     final String nguyenLieu = document['NguyenLieu'] ?? {};
+
 
     return InkWell(
       onTap: () {
-        // Xử lý sự kiện khi nhấn vào món ăn
-        // Ví dụ: Hiển thị thông tin chi tiết về món ăn
-        // Chuyển đến trang chi tiết của món ăn
+        // Xử lý sự kiện khi nhấn vào hình ảnh
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => FoodPageDetail(
@@ -282,7 +274,7 @@ class _HomePageState extends State<HomePage> {
             nguyenLieu: nguyenLieu,
             typeMon: typeMon,
             UserNotes:UserNotes,
-            UsersLikes: UsersLike,
+            UsersLike: UsersLike,
           )),
         );
       },
@@ -307,9 +299,44 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
+            IconButton(
+              icon: Icon(
+                isLiked ? Icons.favorite : Icons.favorite_border,
+                color: isLiked ? Colors.red : Colors.white,
+              ),
+              onPressed: () => toggleLike(document.id),
+            ),
           ],
         ),
       ),
     );
+
+  }
+
+  void toggleLike(String documentID) async {
+    final User? user = _auth.currentUser;
+    if (user != null) {
+      final String currentUserUID = user.uid;
+      final DocumentSnapshot document = await FirebaseFirestore.instance.collection('food').doc(documentID).get();
+      final List<dynamic> usersLiked = document['UsersLike'] ?? [];
+      final bool isLiked = usersLiked.contains(currentUserUID);
+
+      setState(() {
+        if (isLiked) {
+          // Nếu đã thích, xoá UID của người dùng hiện tại khỏi danh sách UsersLike của món ăn
+          FirebaseFirestore.instance.collection('food').doc(documentID).update({
+            'UsersLike': FieldValue.arrayRemove([currentUserUID]),
+          });
+        } else {
+          // Nếu chưa thích, thêm UID của người dùng hiện tại vào danh sách UsersLike của món ăn
+          FirebaseFirestore.instance.collection('food').doc(documentID).update({
+            'UsersLike': FieldValue.arrayUnion([currentUserUID]),
+          });
+        }
+      });
+    } else {
+      // Người dùng chưa đăng nhập, bạn có thể xử lý tương ứng ở đây.
+      print('User is not logged in.');
+    }
   }
 }

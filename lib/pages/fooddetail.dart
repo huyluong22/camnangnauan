@@ -1,3 +1,4 @@
+import 'package:camnangnauan/pages/favoritepage.dart';
 import 'package:camnangnauan/pages/homepage.dart';
 import 'package:camnangnauan/screen/signin_screen.dart.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,7 @@ class FoodPageDetail extends StatefulWidget {
   final String thoiGian;
   final String typeMon;
   final String UserNotes;
-  final String UsersLikes;
+  final List<dynamic> UsersLike;
 
   const FoodPageDetail({
     required this.anh,
@@ -22,7 +23,7 @@ class FoodPageDetail extends StatefulWidget {
     required this.thoiGian,
     required this.typeMon,
     required this.UserNotes,
-    required this.UsersLikes,
+    required this.UsersLike,
   });
 
   @override
@@ -65,7 +66,7 @@ class _FoodPageDetailState extends State<FoodPageDetail> {
             case 1: // Favorites button
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SignInScreen()),
+                MaterialPageRoute(builder: (context) => FavoritePage()),
               );
               break;
             case 2: // Logout button
