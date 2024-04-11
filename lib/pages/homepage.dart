@@ -1,6 +1,8 @@
+import 'package:camnangnauan/pages/fooddetail.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contained_tab_bar_view_with_custom_page_navigator/contained_tab_bar_view_with_custom_page_navigator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../screen/signin_screen.dart.dart';
@@ -19,11 +21,30 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUserID();
+  }
+
+  void getCurrentUserID() {
+    final User? user = _auth.currentUser;
+    if (user != null) {
+      final String userID = user.uid;
+      print('User ID: $userID');
+      // Bạn có thể sử dụng userID ở đây cho mục đích của mình, ví dụ: lấy dữ liệu từ Firestore dựa trên userID.
+    } else {
+      print('User is not logged in.');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        backgroundColor: Colors.orange,
         automaticallyImplyLeading: false, // loại bỏ nút back về
         title: Text("Công thức nấu ăn"),
       ),
@@ -239,11 +260,31 @@ class _HomePageState extends State<HomePage> {
     final String anh = document['Anh'] ?? '';
     final String moTa = document['MoTa'] ?? '';
     final String thoiGian = document['ThoiGian'] ?? '';
+    final String huongDan = document['HuongDan'] ?? ''; // Thêm thông tin hướng dẫ
+    final String typeMon = document['TypeMon'] ?? ''; // Thêm thông tin loại món
+    final String UserNotes = document['UserNotes'] ?? '';
+    final String UsersLike = document['UsersLike'] ?? '';
+    final String nguyenLieu = document['NguyenLieu'] ?? {};
 
     return InkWell(
       onTap: () {
         // Xử lý sự kiện khi nhấn vào món ăn
         // Ví dụ: Hiển thị thông tin chi tiết về món ăn
+        // Chuyển đến trang chi tiết của món ăn
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => FoodPageDetail(
+            ten: ten,
+            anh: anh,
+            moTa: moTa,
+            thoiGian: thoiGian,
+            huongDan: huongDan,
+            nguyenLieu: nguyenLieu,
+            typeMon: typeMon,
+            UserNotes:UserNotes,
+            UsersLikes: UsersLike,
+          )),
+        );
       },
       child: Container(
         height: 150,
