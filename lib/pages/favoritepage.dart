@@ -3,7 +3,6 @@ import 'package:camnangnauan/pages/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
- // Import trang FoodPageDetail
 import 'package:camnangnauan/screen/signin_screen.dart.dart';
 
 class FavoritePage extends StatefulWidget {
@@ -88,6 +87,20 @@ class _FavoritePageState extends State<FavoritePage> {
                 leading: Image.network(document['Anh']),
                 title: Text(document['Ten'], style: TextStyle(color: Colors.white)),
                 subtitle: Text(document['ThoiGian'], style: TextStyle(color: Colors.white)),
+                trailing: IconButton(
+                  icon: Icon(Icons.delete, color: Colors.grey),
+                  onPressed: () async {
+                    final String documentId = document.id;
+                    final User? user = _auth.currentUser;
+                    if (user != null) {
+                      final String currentUserUID = user.uid;
+                      await FirebaseFirestore.instance.collection('food').doc(documentId).update({
+                        'UsersLike': FieldValue.arrayRemove([currentUserUID]),
+                      });
+                      setState(() {});
+                    }
+                  },
+                ),
                 onTap: () {
                   Navigator.push(
                     context,
