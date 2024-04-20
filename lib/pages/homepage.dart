@@ -255,7 +255,7 @@ class _HomePageState extends State<HomePage> {
     final String thoiGian = document['ThoiGian'] ?? '';
     final String huongDan = document['HuongDan'] ?? ''; // Thêm thông tin hướng dẫ
     final String typeMon = document['TypeMon'] ?? ''; // Thêm thông tin loại món
-    final String UserNotes = document['UserNotes'] ?? '';
+    final List<dynamic> UserNotes = document['UserNotes'] ?? [];
     final List<dynamic> UsersLike = document['UsersLike'] ?? [];
     final String nguyenLieu = document['NguyenLieu'] ?? {};
 
@@ -266,6 +266,7 @@ class _HomePageState extends State<HomePage> {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => FoodPageDetail(
+            documentId: document.id,
             ten: ten,
             anh: anh,
             moTa: moTa,

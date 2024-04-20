@@ -114,6 +114,7 @@ class _FavoritePageState extends State<FavoritePage> {
                       typeMon: document['TypeMon'],
                       UserNotes: document['UserNotes'],
                       UsersLike: document['UsersLike'],
+                      documentId: document.id,
                     )),
                   );
                 },
