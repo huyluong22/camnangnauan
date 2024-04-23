@@ -1,5 +1,6 @@
 import 'package:camnangnauan/pages/favoritepage.dart';
 import 'package:camnangnauan/pages/fooddetail.dart';
+import 'package:camnangnauan/pages/searchpage.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contained_tab_bar_view_with_custom_page_navigator/contained_tab_bar_view_with_custom_page_navigator.dart';
@@ -23,6 +24,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -83,20 +85,40 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TextField(
-                  decoration: InputDecoration(
-                    suffixIcon: IconButton(
-                      onPressed: () {},
-                      icon: Icon(Icons.search),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: "Tìm kiếm",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          fillColor: Colors.white,
+                          filled: true,
+                        ),
+                      ),
                     ),
-                    hintText: "Tìm kiếm",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
+                    IconButton(
+                      onPressed: () {
+                        // Kiểm tra xem ô tìm kiếm có rỗng không trước khi gọi searchFood
+                        if (_searchController.text.isNotEmpty) {
+                          searchFood(_searchController.text);
+                        } else {
+                          // Hiển thị thông báo hoặc thực hiện hành động phù hợp khi ô tìm kiếm trống
+                          // Ví dụ:
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Vui lòng nhập từ khoá tìm kiếm.'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                      },
+                      icon: Icon(Icons.search, color: Colors.grey),
                     ),
-                    fillColor: Colors.white,
-                    //màu khung
-                    filled: true,
-                  ),
+                  ],
                 ),
                 SizedBox(height: 15,),
                 Container(
@@ -340,4 +362,49 @@ class _HomePageState extends State<HomePage> {
       print('User is not logged in.');
     }
   }
+
+  void searchFood(String searchText) async {
+    final searchTextFormatted = formatSearchText(searchText);
+    // Tạo một chuỗi chứa các ký tự đặc biệt để đảm bảo tìm kiếm chính xác
+    final specialChar = String.fromCharCode(65535);
+    final searchTextWithSpecialChar = '$searchTextFormatted$specialChar';
+
+    // Tạo truy vấn Firestore
+    final snapshot = await FirebaseFirestore.instance.collection('food')
+        .where('Ten', isGreaterThanOrEqualTo: searchTextFormatted)
+        .where('Ten', isLessThan: searchTextWithSpecialChar)
+        .get();
+
+    // Lấy danh sách kết quả
+    List<DocumentSnapshot> searchResults = snapshot.docs;
+    print(searchResults);
+
+    // Chuyển hướng đến trang SearchPage
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SearchPage(searchResults: searchResults),
+      ),
+    );
+  }
+
+  String formatSearchText(String input) {
+    // Tách chuỗi thành các từ riêng biệt
+    List<String> words = input.split(' ');
+    // Chuyển đổi ký tự đầu tiên của mỗi từ thành chữ in hoa
+    List<String> capitalizedWords = words.map((word) {
+      return capitalizeFirstLetter(word);
+    }).toList();
+    // Kết hợp các từ lại thành một chuỗi mới
+    return capitalizedWords.join(' ');
+  }
+
+  String capitalizeFirstLetter(String word) {
+    if (word.isEmpty) {
+      return word;
+    }
+    return word[0].toUpperCase() + word.substring(1);
+  }
+
+
 }
