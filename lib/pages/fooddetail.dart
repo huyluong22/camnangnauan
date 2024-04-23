@@ -89,7 +89,6 @@ class _FoodPageDetailState extends State<FoodPageDetail> {
                 Navigator.pop(context); // Đóng hộp thoại
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.white, // Đặt màu nền của nút là màu trắng
               ),
               child: Text(
                 'Xác nhận',
