@@ -14,6 +14,7 @@ class FoodPageDetail extends StatefulWidget {
   final String ten;
   final String thoiGian;
   final String typeMon;
+
   final List<dynamic> UserNotes;
   final List<dynamic> UsersLike;
 
@@ -28,6 +29,7 @@ class FoodPageDetail extends StatefulWidget {
     required this.UserNotes,
     required this.UsersLike,
     required this.documentId,
+
   });
 
   @override
