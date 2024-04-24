@@ -21,9 +21,8 @@ class _FavoritePageState extends State<FavoritePage> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.orange,
-        automaticallyImplyLeading: false,
         title: Text(
-          "Công thức nấu ăn",
+          "Danh sách ưa thích",
           style: TextStyle(color: Colors.white), // Đặt màu chữ thành màu trắng
         ),
       ),
