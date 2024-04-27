@@ -38,6 +38,7 @@ class FoodPageDetail extends StatefulWidget {
 
 
 class _FoodPageDetailState extends State<FoodPageDetail> {
+
   final _notesController = TextEditingController();
   void _showNotesDialog() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -132,6 +133,48 @@ class _FoodPageDetailState extends State<FoodPageDetail> {
       });
     }
   }
+  bool isLiked = false; // Khai báo biến isLiked ở mức trang thái để sử dụng trong toàn bộ trang
+
+  void showLike() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final List<dynamic> usersLiked = widget.UsersLike; // Sử dụng UsersLike từ widget
+      final String currentUserUID = user.uid;
+      isLiked = usersLiked.contains(currentUserUID); // Xác định isLiked dựa trên danh sách người dùng thích
+
+      setState(() {}); // Cập nhật trạng thái của widget
+    }
+  }
+  void toggleLike(String documentID) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final String currentUserUID = user.uid;
+      final DocumentSnapshot document = await FirebaseFirestore.instance.collection('food').doc(documentID).get();
+      final List<dynamic> usersLiked = document['UsersLike'] ?? [];
+      final bool isAlreadyLiked = usersLiked.contains(currentUserUID);
+
+      setState(() {
+        if (isAlreadyLiked) {
+          // Nếu đã thích, xoá UID của người dùng hiện tại khỏi danh sách UsersLike của món ăn
+          FirebaseFirestore.instance.collection('food').doc(documentID).update({
+            'UsersLike': FieldValue.arrayRemove([currentUserUID]),
+          });
+          isLiked = false; // Cập nhật lại biến isLiked
+        } else {
+          // Nếu chưa thích, thêm UID của người dùng hiện tại vào danh sách UsersLike của món ăn
+          FirebaseFirestore.instance.collection('food').doc(documentID).update({
+            'UsersLike': FieldValue.arrayUnion([currentUserUID]),
+          });
+          isLiked = true; // Cập nhật lại biến isLiked
+        }
+      });
+      print("Is Liked: $isLiked");
+    } else {
+      // Người dùng chưa đăng nhập, bạn có thể xử lý tương ứng ở đây.
+      print('User is not logged in.');
+    }
+  }
+
   List<String> splitHuongDan(String huongDan) {
     return huongDan.split('-').map((step) => step.trim()).toList();
   }
@@ -139,7 +182,11 @@ class _FoodPageDetailState extends State<FoodPageDetail> {
   List<String> extractNguyenLieu(String nguyenLieu) {
     return nguyenLieu.split('-').map((step) => step.trim()).toList();
   }
-
+  @override
+  void initState() {
+    super.initState();
+    showLike(); // Gọi hàm showLike trong initState để cập nhật trạng thái isLiked khi trang được khởi tạo
+  }
   @override
   Widget build(BuildContext context) {
 
@@ -157,6 +204,13 @@ class _FoodPageDetailState extends State<FoodPageDetail> {
             onPressed: () {
               _showNotesDialog();
             },
+          ),
+          IconButton(
+            icon: Icon(
+              isLiked ? Icons.favorite : Icons.favorite_border,
+              color: isLiked ? Colors.red : Colors.white,
+            ),
+            onPressed: () => toggleLike(widget.documentId),
           ),
         ],
       ),
@@ -292,4 +346,5 @@ class _FoodPageDetailState extends State<FoodPageDetail> {
       ),
     );
   }
+
 }

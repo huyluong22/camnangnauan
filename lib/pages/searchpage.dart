@@ -3,28 +3,35 @@ import 'package:camnangnauan/pages/fooddetail.dart';
 import 'package:camnangnauan/pages/homepage.dart';
 import 'package:camnangnauan/screen/signin_screen.dart.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SearchPage extends StatefulWidget {
   final List<DocumentSnapshot> searchResults;
+  final String searchKeyword; // Thêm trường để lưu từ khóa tìm kiếm
 
-  const SearchPage({Key? key, required this.searchResults}) : super(key: key);
+  const SearchPage({Key? key, required this.searchResults, required this.searchKeyword}) : super(key: key);
 
   @override
   State<SearchPage> createState() => _SearchPageState();
 }
 
 class _SearchPageState extends State<SearchPage> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
+  final TextEditingController _searchController = TextEditingController();
+  void _setInitialSearchKeyword() {
+    _searchController.text = widget.searchKeyword;
+  }
+  @override
+  void initState() {
+    super.initState();
+    _setInitialSearchKeyword();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.orange,
-        automaticallyImplyLeading: false,
+
         title: Text(
           "Kết quả tìm kiếm",
           style: TextStyle(color: Colors.white), // Đặt màu chữ thành màu trắng
@@ -72,27 +79,72 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ],
       ),
-      body: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, crossAxisSpacing: 15, mainAxisSpacing: 15),
-        itemCount: widget.searchResults.length,
-        itemBuilder: (context, index) {
-          final document = widget.searchResults[index];
-          return buildItem(context, document);
-        },
+      body: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.all(10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: "Tìm kiếm",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      fillColor: Colors.white,
+                      filled: true,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    // Kiểm tra xem ô tìm kiếm có rỗng không trước khi gọi searchFood
+                    if (_searchController.text.isNotEmpty) {
+                      searchFood(_searchController.text);
+                    } else {
+                      // Hiển thị thông báo hoặc thực hiện hành động phù hợp khi ô tìm kiếm trống
+                      // Ví dụ:
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Vui lòng nhập từ khoá tìm kiếm.'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                  },
+                  icon: Icon(Icons.search, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height, // Giới hạn chiều cao của Container
+              ),
+              child: GridView.builder(
+                shrinkWrap: true, // Đặt thuộc tính shrinkWrap cho GridView
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 15,
+                  mainAxisSpacing: 15,
+                ),
+                itemCount: widget.searchResults.length,
+                itemBuilder: (context, index) {
+                  final document = widget.searchResults[index];
+                  return buildItem(context, document);
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget buildItem(BuildContext context,DocumentSnapshot document) {
-    final List<dynamic> usersLiked = document['UsersLike'] ?? [];
-    final User? user = _auth.currentUser;
-    bool isLiked = false;
-
-    // Check if the current user's ID is in the list of users who liked the food
-    if (user != null && usersLiked.contains(user.uid)) {
-      isLiked = true;
-    }
+  Widget buildItem(BuildContext context, DocumentSnapshot document) {
     final String ten = document['Ten'] ?? '';
     final String anh = document['Anh'] ?? '';
     final String moTa = document['MoTa'] ?? '';
@@ -103,24 +155,25 @@ class _SearchPageState extends State<SearchPage> {
     final List<dynamic> UsersLike = document['UsersLike'] ?? [];
     final String nguyenLieu = document['NguyenLieu'] ?? {};
 
-
     return InkWell(
       onTap: () {
         // Xử lý sự kiện khi nhấn vào hình ảnh
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => FoodPageDetail(
-            documentId: document.id,
-            ten: ten,
-            anh: anh,
-            moTa: moTa,
-            thoiGian: thoiGian,
-            huongDan: huongDan,
-            nguyenLieu: nguyenLieu,
-            typeMon: typeMon,
-            UserNotes:UserNotes,
-            UsersLike: UsersLike,
-          )),
+          MaterialPageRoute(
+            builder: (context) => FoodPageDetail(
+              documentId: document.id,
+              ten: ten,
+              anh: anh,
+              moTa: moTa,
+              thoiGian: thoiGian,
+              huongDan: huongDan,
+              nguyenLieu: nguyenLieu,
+              typeMon: typeMon,
+              UserNotes: UserNotes,
+              UsersLike: UsersLike,
+            ),
+          ),
         );
       },
       child: Container(
@@ -141,43 +194,71 @@ class _SearchPageState extends State<SearchPage> {
               color: Colors.black.withOpacity(0.6),
               child: Text(
                 ten,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
-            IconButton(
-              icon: Icon(
-                isLiked ? Icons.favorite : Icons.favorite_border,
-                color: isLiked ? Colors.red : Colors.white,
+            Container(
+              padding: EdgeInsets.all(3),
+              color: Colors.black.withOpacity(0.6),
+              child: Text(
+                thoiGian,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
-              onPressed: () => toggleLike(document.id),
             ),
           ],
         ),
       ),
     );
+  }
+  void searchFood(String searchText) async {
+    final searchTextFormatted = formatSearchText(searchText);
+    // Tạo một chuỗi chứa các ký tự đặc biệt để đảm bảo tìm kiếm chính xác
+    final specialChar = String.fromCharCode(65535);
+    final searchTextWithSpecialChar = '$searchTextFormatted$specialChar';
 
+    // Tạo truy vấn Firestore
+    final snapshot = await FirebaseFirestore.instance.collection('food')
+        .where('Ten', isGreaterThanOrEqualTo: searchTextFormatted)
+        .where('Ten', isLessThan: searchTextWithSpecialChar)
+        .get();
+
+    // Lấy danh sách kết quả
+    List<DocumentSnapshot> searchResults = snapshot.docs;
+    print(searchResults);
+
+    // Chuyển hướng đến trang SearchPage
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SearchPage(searchResults: searchResults, searchKeyword: searchText),
+      ),
+    );
   }
 
-  void toggleLike(String documentID) async {
-    final User? user = _auth.currentUser;
-    if (user != null) {
-      final String currentUserUID = user.uid;
-      final DocumentSnapshot document = await FirebaseFirestore.instance.collection('food').doc(documentID).get();
-      final List<dynamic> usersLiked = document['UsersLike'] ?? [];
-      final bool isLiked = usersLiked.contains(currentUserUID);
+  String formatSearchText(String input) {
+    // Tách chuỗi thành các từ riêng biệt
+    List<String> words = input.split(' ');
+    // Chuyển đổi ký tự đầu tiên của mỗi từ thành chữ in hoa
+    List<String> capitalizedWords = words.map((word) {
+      return capitalizeFirstLetter(word);
+    }).toList();
+    // Kết hợp các từ lại thành một chuỗi mới
+    return capitalizedWords.join(' ');
+  }
 
-      if (isLiked) {
-        await FirebaseFirestore.instance.collection('food').doc(documentID).update({
-          'UsersLike': FieldValue.arrayRemove([currentUserUID]),
-        });
-      } else {
-        await FirebaseFirestore.instance.collection('food').doc(documentID).update({
-          'UsersLike': FieldValue.arrayUnion([currentUserUID]),
-        });
-      }
-    } else {
-      print('User is not logged in.');
+  String capitalizeFirstLetter(String word) {
+    if (word.isEmpty) {
+      return word;
     }
+    return word[0].toUpperCase() + word.substring(1);
   }
 }
 
