@@ -4,7 +4,6 @@ import 'package:camnangnauan/pages/searchpage.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contained_tab_bar_view_with_custom_page_navigator/contained_tab_bar_view_with_custom_page_navigator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../screen/signin_screen.dart.dart';
@@ -23,7 +22,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -263,14 +261,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildItem(DocumentSnapshot document) {
-    final List<dynamic> usersLiked = document['UsersLike'] ?? [];
-    final User? user = _auth.currentUser;
-    bool isLiked = false;
-
-    // Check if the current user's ID is in the list of users who liked the food
-    if (user != null && usersLiked.contains(user.uid)) {
-      isLiked = true;
-    }
     final String ten = document['Ten'] ?? '';
     final String anh = document['Anh'] ?? '';
     final String moTa = document['MoTa'] ?? '';
@@ -280,8 +270,6 @@ class _HomePageState extends State<HomePage> {
     final List<dynamic> UserNotes = document['UserNotes'] ?? [];
     final List<dynamic> UsersLike = document['UsersLike'] ?? [];
     final String nguyenLieu = document['NguyenLieu'] ?? {};
-
-
     return InkWell(
       onTap: () {
         // Xử lý sự kiện khi nhấn vào hình ảnh
@@ -322,13 +310,6 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
-            IconButton(
-              icon: Icon(
-                isLiked ? Icons.favorite : Icons.favorite_border,
-                color: isLiked ? Colors.red : Colors.white,
-              ),
-              onPressed: () => toggleLike(document.id),
-            ),
           ],
         ),
       ),
@@ -336,32 +317,7 @@ class _HomePageState extends State<HomePage> {
 
   }
 
-  void toggleLike(String documentID) async {
-    final User? user = _auth.currentUser;
-    if (user != null) {
-      final String currentUserUID = user.uid;
-      final DocumentSnapshot document = await FirebaseFirestore.instance.collection('food').doc(documentID).get();
-      final List<dynamic> usersLiked = document['UsersLike'] ?? [];
-      final bool isLiked = usersLiked.contains(currentUserUID);
 
-      setState(() {
-        if (isLiked) {
-          // Nếu đã thích, xoá UID của người dùng hiện tại khỏi danh sách UsersLike của món ăn
-          FirebaseFirestore.instance.collection('food').doc(documentID).update({
-            'UsersLike': FieldValue.arrayRemove([currentUserUID]),
-          });
-        } else {
-          // Nếu chưa thích, thêm UID của người dùng hiện tại vào danh sách UsersLike của món ăn
-          FirebaseFirestore.instance.collection('food').doc(documentID).update({
-            'UsersLike': FieldValue.arrayUnion([currentUserUID]),
-          });
-        }
-      });
-    } else {
-      // Người dùng chưa đăng nhập, bạn có thể xử lý tương ứng ở đây.
-      print('User is not logged in.');
-    }
-  }
 
   void searchFood(String searchText) async {
     final searchTextFormatted = formatSearchText(searchText);
@@ -379,14 +335,15 @@ class _HomePageState extends State<HomePage> {
     List<DocumentSnapshot> searchResults = snapshot.docs;
     print(searchResults);
 
-    // Chuyển hướng đến trang SearchPage
+    // Chuyển hướng đến trang SearchPage và truyền từ khoá tìm kiếm
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SearchPage(searchResults: searchResults),
+        builder: (context) => SearchPage(searchResults: searchResults, searchKeyword: searchText),
       ),
     );
   }
+
 
   String formatSearchText(String input) {
     // Tách chuỗi thành các từ riêng biệt
