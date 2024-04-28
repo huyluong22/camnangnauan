@@ -9,9 +9,6 @@ import 'package:flutter/material.dart';
 import '../screen/signin_screen.dart.dart';
 
 final List<String> imgList = [
-  "assets/images/content1.png",
-  "assets/images/content2.jpg",
-  "assets/images/content3.jpg"
 ];
 
 class HomePage extends StatefulWidget {
@@ -23,9 +20,97 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
+  List<String> typeMonList = [];// Danh sách các loại TypeMon từ Firestore
+  List<DocumentSnapshot> foodList = [];// Danh sách các món ăn từ Firestore
+  Map<String, bool> isSelected = {};
+
+  @override
+  void initState() {
+    super.initState();
+    fetchTypeMon(); // Gọi hàm để truy vấn các loại TypeMon từ Firestore
+    fetchFoodList(); // Gọi hàm để truy vấn danh sách các món ăn từ Firestore
+  }
+
+  void fetchFoodList() async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('food').get();
+      setState(() {
+        foodList = querySnapshot.docs; // Gán danh sách các món ăn cho biến foodList
+      });
+    } catch (e) {
+      print("Error fetching food list: $e");
+    }
+  }
+
+  void fetchTypeMon() async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('food').get();
+      Set<String> typeMonSet = Set<String>();
+      querySnapshot.docs.forEach((doc) {
+        typeMonSet.add(doc['TypeMon']);
+      });
+      typeMonSet.forEach((typeMon) {
+        isSelected[typeMon] = false; // Khởi tạo giá trị ban đầu là false cho mỗi TypeMon
+      });
+      setState(() {
+        typeMonList = typeMonSet.toList();
+      });
+    } catch (e) {
+      print("Error fetching TypeMon: $e");
+    }
+  }
+
+// Widget để hiển thị danh sách FilterChip
+  Widget buildFilterChips() {
+    return Wrap(
+      spacing: 8.0,
+      children: typeMonList.map((typeMon) {
+        return FilterChip(
+          label: Text(typeMon),
+          onSelected: (bool selected) {
+            handleFilterChipSelection(typeMon);
+          },
+          selected: isSelected[typeMon] ?? false,
+          selectedColor: Colors.blue,
+          backgroundColor: Colors.grey[300],
+          checkmarkColor: Colors.white,
+        );
+      }).toList(),
+    );
+  }
+
+  void handleFilterChipSelection(String selectedTypeMon) {
+    setState(() {
+      isSelected.forEach((key, value) {
+        isSelected[key] = false; // Đặt tất cả các giá trị về false
+      });
+      isSelected[selectedTypeMon] = true; // Đặt true cho FilterChip được chọn
+    });
+    // Lọc danh sách món ăn để chỉ bao gồm những món có loại TypeMon tương ứng với loại đã chọn
+    List<DocumentSnapshot> filteredFoodList = foodList.where((food) => food['TypeMon'] == selectedTypeMon).toList();
+
+    // In ra danh sách món ăn đã lọc để kiểm tra
+    print("Danh sách món ăn sau khi lọc:");
+    filteredFoodList.forEach((food) {
+      print(food['Ten']); // In ra tên của mỗi món ăn trong danh sách đã lọc
+    });
+
+    // Cập nhật giao diện người dùng để hiển thị danh sách ảnh của các món ăn đã lọc
+    setState(() {
+      imgList.clear(); // Xóa danh sách ảnh cũ
+      // Thêm ảnh của các món ăn đã lọc vào danh sách ảnh
+      filteredFoodList.forEach((food) {
+        imgList.add(food['Anh']);
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    print('Danh sách các URL ảnh:');
+    imgList.forEach((url) {
+      print(url);
+    });
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -119,6 +204,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 SizedBox(height: 15,),
+                buildFilterChips(),
                 Container(
                   color: Colors.black,
                   child: CarouselSlider(
@@ -128,9 +214,9 @@ class _HomePageState extends State<HomePage> {
                       scrollDirection: Axis.horizontal, // cuộn theo chiều ngang
                       autoPlay: true, // tự động chuyển đổi
                     ),
-                    items: imgList.map((String imagePath) {
-                      return Image.asset(
-                        imagePath,
+                    items: imgList.map((String imageUrl) {
+                      return Image.network(
+                        imageUrl,
                         fit: BoxFit.cover,
                       );
                     }).toList(),
@@ -343,8 +429,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-
   String formatSearchText(String input) {
     // Tách chuỗi thành các từ riêng biệt
     List<String> words = input.split(' ');
@@ -355,13 +439,10 @@ class _HomePageState extends State<HomePage> {
     // Kết hợp các từ lại thành một chuỗi mới
     return capitalizedWords.join(' ');
   }
-
   String capitalizeFirstLetter(String word) {
     if (word.isEmpty) {
       return word;
     }
     return word[0].toUpperCase() + word.substring(1);
   }
-
-
 }
