@@ -8,8 +8,7 @@ import 'package:flutter/material.dart';
 
 import '../screen/signin_screen.dart.dart';
 
-final List<String> imgList = [
-];
+final List<String> imgList = [];
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -23,6 +22,7 @@ class _HomePageState extends State<HomePage> {
   List<String> typeMonList = [];// Danh sách các loại TypeMon từ Firestore
   List<DocumentSnapshot> foodList = [];// Danh sách các món ăn từ Firestore
   Map<String, bool> isSelected = {};
+  List<DocumentSnapshot> filteredFoodList = [];
 
   @override
   void initState() {
@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> {
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('food').get();
       setState(() {
-        foodList = querySnapshot.docs; // Gán danh sách các món ăn cho biến foodList
+        foodList = querySnapshot.docs.cast<DocumentSnapshot>().toList();
       });
     } catch (e) {
       print("Error fetching food list: $e");
@@ -59,7 +59,6 @@ class _HomePageState extends State<HomePage> {
       print("Error fetching TypeMon: $e");
     }
   }
-
 // Widget để hiển thị danh sách FilterChip
   Widget buildFilterChips() {
     return Wrap(
@@ -78,30 +77,21 @@ class _HomePageState extends State<HomePage> {
       }).toList(),
     );
   }
-
   void handleFilterChipSelection(String selectedTypeMon) {
     setState(() {
+      // Đặt tất cả các giá trị về false trước khi đặt true cho filter chip được chọn
       isSelected.forEach((key, value) {
-        isSelected[key] = false; // Đặt tất cả các giá trị về false
+        isSelected[key] = false;
       });
-      isSelected[selectedTypeMon] = true; // Đặt true cho FilterChip được chọn
+      isSelected[selectedTypeMon] = true; // Đặt true cho filter chip được chọn
     });
     // Lọc danh sách món ăn để chỉ bao gồm những món có loại TypeMon tương ứng với loại đã chọn
-    List<DocumentSnapshot> filteredFoodList = foodList.where((food) => food['TypeMon'] == selectedTypeMon).toList();
-
-    // In ra danh sách món ăn đã lọc để kiểm tra
-    print("Danh sách món ăn sau khi lọc:");
-    filteredFoodList.forEach((food) {
-      print(food['Ten']); // In ra tên của mỗi món ăn trong danh sách đã lọc
-    });
-
-    // Cập nhật giao diện người dùng để hiển thị danh sách ảnh của các món ăn đã lọc
+    filteredFoodList = foodList.where((doc) => doc['TypeMon'] == selectedTypeMon).toList();
+    // Cập nhật danh sách ảnh chỉ bao gồm các ảnh của món ăn đã lọc
     setState(() {
       imgList.clear(); // Xóa danh sách ảnh cũ
       // Thêm ảnh của các món ăn đã lọc vào danh sách ảnh
-      filteredFoodList.forEach((food) {
-        imgList.add(food['Anh']);
-      });
+      imgList.addAll(filteredFoodList.map<String>((doc) => doc['Anh'] as String)); // Chuyển đổi thành List<String>
     });
   }
 
@@ -214,14 +204,83 @@ class _HomePageState extends State<HomePage> {
                       scrollDirection: Axis.horizontal, // cuộn theo chiều ngang
                       autoPlay: true, // tự động chuyển đổi
                     ),
-                    items: imgList.map((String imageUrl) {
-                      return Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
+                    items: filteredFoodList.map((DocumentSnapshot document) {
+                      String imageUrl = document['Anh'];
+                      String ten = document['Ten'];
+                      String thoiGian = document['ThoiGian'];
+                      String moTa = document['MoTa'];
+                      String huongDan = document['HuongDan'];
+                      String typeMon = document['TypeMon'];
+                      List<dynamic> UserNotes = document['UserNotes'];
+                      String nguyenLieu = document['NguyenLieu'];
+                      List<dynamic> UsersLike = document['UsersLike'];
+                      return Builder(
+                        builder: (BuildContext context) {
+                          return Stack(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => FoodPageDetail(
+                                        documentId: document.id,
+                                        ten: ten,
+                                        anh: imageUrl,
+                                        moTa: moTa,
+                                        thoiGian: thoiGian,
+                                        huongDan: huongDan,
+                                        nguyenLieu: nguyenLieu,
+                                        typeMon: typeMon,
+                                        UserNotes: UserNotes,
+                                        UsersLike: UsersLike,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: EdgeInsets.all(8),
+                                  color: Colors.black.withOpacity(0.6),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        ten,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        thoiGian,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       );
                     }).toList(),
                   ),
                 ),
+
                 SizedBox(height: 15),
                 Container(
                   padding: const EdgeInsets.all(8.0),
@@ -396,14 +455,23 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
+            Container(
+              padding: EdgeInsets.all(3),
+              color: Colors.black.withOpacity(0.6),
+              child: Text(
+                thoiGian,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
-
   }
-
-
 
   void searchFood(String searchText) async {
     final searchTextFormatted = formatSearchText(searchText);
