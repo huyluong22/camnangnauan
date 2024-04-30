@@ -5,7 +5,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contained_tab_bar_view_with_custom_page_navigator/contained_tab_bar_view_with_custom_page_navigator.dart';
 import 'package:flutter/material.dart';
-
+import 'dart:async';
 import '../screen/signin_screen.dart.dart';
 
 final List<String> imgList = [];
@@ -23,14 +23,43 @@ class _HomePageState extends State<HomePage> {
   List<DocumentSnapshot> foodList = [];// Danh sách các món ăn từ Firestore
   Map<String, bool> isSelected = {};
   List<DocumentSnapshot> filteredFoodList = [];
-
+  List<DocumentSnapshot> foodListByViews = [];
   @override
   void initState() {
     super.initState();
     fetchTypeMon(); // Gọi hàm để truy vấn các loại TypeMon từ Firestore
     fetchFoodList(); // Gọi hàm để truy vấn danh sách các món ăn từ Firestore
+    fetchFoodListByViews();
+    // Thiết lập Timer để đặt views của tất cả các món ăn về 0 sau một tuần
+    Timer(Duration(days: 7), () {
+      resetViews();
+    });
   }
-
+  void fetchFoodListByViews() async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('food')
+          .orderBy('views', descending: true) // Sắp xếp theo lượt views giảm dần
+          .get();
+      setState(() {
+        foodListByViews = querySnapshot.docs.cast<DocumentSnapshot>().toList();
+      });
+    } catch (e) {
+      print("Error fetching food list by views: $e");
+    }
+  }
+  void resetViews() async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('food').get();
+      querySnapshot.docs.forEach((doc) {
+        FirebaseFirestore.instance.collection('food').doc(doc.id).update({
+          'views': 0,
+        });
+      });
+    } catch (e) {
+      print("Error resetting views: $e");
+    }
+  }
   void fetchFoodList() async {
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('food').get();
@@ -280,7 +309,108 @@ class _HomePageState extends State<HomePage> {
                     }).toList(),
                   ),
                 ),
-
+                SizedBox(height: 15,),
+                Container(
+                  color: Colors.black,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                        child: Text(
+                          'Tuần này nấu gì ?',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      CarouselSlider(
+                        options: CarouselOptions(
+                          aspectRatio: 2.0, // tỉ lệ khung hình
+                          enlargeCenterPage: true, // hình ở giữa sẽ lớn hơn
+                          scrollDirection: Axis.horizontal, // cuộn theo chiều ngang
+                          autoPlay: true, // tự động chuyển đổi
+                        ),
+                        items: foodListByViews.map((DocumentSnapshot document) {
+                          String imageUrl = document['Anh'];
+                          String ten = document['Ten'];
+                          String thoiGian = document['ThoiGian'];
+                          String moTa = document['MoTa'];
+                          String huongDan = document['HuongDan'];
+                          String typeMon = document['TypeMon'];
+                          List<dynamic> UserNotes = document['UserNotes'];
+                          String nguyenLieu = document['NguyenLieu'];
+                          List<dynamic> UsersLike = document['UsersLike'];
+                          return Builder(
+                            builder: (BuildContext context) {
+                              return Stack(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => FoodPageDetail(
+                                            documentId: document.id,
+                                            ten: ten,
+                                            anh: imageUrl,
+                                            moTa: moTa,
+                                            thoiGian: thoiGian,
+                                            huongDan: huongDan,
+                                            nguyenLieu: nguyenLieu,
+                                            typeMon: typeMon,
+                                            UserNotes: UserNotes,
+                                            UsersLike: UsersLike,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Image.network(
+                                      imageUrl,
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    child: Container(
+                                      padding: EdgeInsets.all(8),
+                                      color: Colors.black.withOpacity(0.6),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            ten,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            thoiGian,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
                 SizedBox(height: 15),
                 Container(
                   padding: const EdgeInsets.all(8.0),
