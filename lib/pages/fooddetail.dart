@@ -29,7 +29,6 @@ class FoodPageDetail extends StatefulWidget {
     required this.UserNotes,
     required this.UsersLike,
     required this.documentId,
-
   });
 
   @override
@@ -186,6 +185,30 @@ class _FoodPageDetailState extends State<FoodPageDetail> {
   void initState() {
     super.initState();
     showLike(); // Gọi hàm showLike trong initState để cập nhật trạng thái isLiked khi trang được khởi tạo
+    updateViews();
+  }
+  Future<void> updateViews() async {
+    try {
+      // Lấy tham chiếu đến tài liệu món ăn từ Firestore
+      DocumentReference foodRef = FirebaseFirestore.instance.collection('food').doc(widget.documentId);
+
+      // Bắt đầu một giao dịch Firestore để cập nhật lượt views
+      FirebaseFirestore.instance.runTransaction((transaction) async {
+        DocumentSnapshot foodSnapshot = await transaction.get(foodRef);
+        if (foodSnapshot.exists) {
+          // Lấy giá trị hiện tại của lượt views
+          int currentViews = foodSnapshot['views'] ?? 0;
+
+          // Tăng lượt views lên 1
+          int updatedViews = currentViews + 1;
+
+          // Cập nhật lượt views mới vào tài liệu món ăn
+          transaction.update(foodRef, {'views': updatedViews});
+        }
+      });
+    } catch (e) {
+      print("Error updating views: $e");
+    }
   }
   @override
   Widget build(BuildContext context) {
