@@ -52,9 +52,14 @@ Sau đó bạn có thể Download code trên về và khởi chạy.
 ![thich](https://firebasestorage.googleapis.com/v0/b/camnangnauan-edaf6.appspot.com/o/thich.png?alt=media&token=07a59898-e296-4bac-8940-c864f79f76a0)
 **Danh sách món ăn ưa thích**(Nếu bạn ấn nút bên cạnh danh sách thì sẽ xoá món ăn đó khỏi danh sách món ăn ưa thích)
 ![dsthich](https://firebasestorage.googleapis.com/v0/b/camnangnauan-edaf6.appspot.com/o/dsthich.png?alt=media&token=6b4dd416-bbff-4436-8579-abd4b6893f5d)
+
 **Filter lọc món ăn**(Đây là kết quả sau khi lọc với mục được chọn là Cơm)
+
 ![filter](https://firebasestorage.googleapis.com/v0/b/camnangnauan-edaf6.appspot.com/o/filter.png?alt=media&token=1ebdcab5-b506-4d05-ba64-bd2dae039985)
+
 **ChatBot Gemini**(Khi bạn ấn vào Icon Gemini ở trang chủ sẽ xuất hiện trang để chat với Gemini như sau)
+
 ![trangchuupdate](https://firebasestorage.googleapis.com/v0/b/camnangnauan-edaf6.appspot.com/o/trangchuupdate.png?alt=media&token=e00c26fc-2f8c-4f07-a1ae-c6e1587607f7)
+
 ![gemini](https://firebasestorage.googleapis.com/v0/b/camnangnauan-edaf6.appspot.com/o/gemini.png?alt=media&token=1ea10cc6-02e4-4216-a470-250138e73051)
 
