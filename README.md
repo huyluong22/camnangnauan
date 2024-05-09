@@ -41,16 +41,27 @@ Sau đó bạn có thể Download code trên về và khởi chạy.
 **Giao diện trang chủ**
 
 ![trangchu1](https://firebasestorage.googleapis.com/v0/b/camnangnauan-edaf6.appspot.com/o/trangchu1.png?alt=media&token=8fdf344f-52a0-401c-b3e0-474ee72ae8e1)
+
 ![trangchu2](https://firebasestorage.googleapis.com/v0/b/camnangnauan-edaf6.appspot.com/o/trangchu2.png?alt=media&token=8405cae6-4345-479e-8e1a-6327784236ec)
+
 **Kết quả tìm kiếm**
+
 ![timkiem](https://firebasestorage.googleapis.com/v0/b/camnangnauan-edaf6.appspot.com/o/timkiem.png?alt=media&token=529e026a-9fe2-46dc-85c4-b6306f157a36)
+
 **Chi tiết món ăn**
+
 ![ctmonan](https://firebasestorage.googleapis.com/v0/b/camnangnauan-edaf6.appspot.com/o/chitietmonan.png?alt=media&token=6e3784f8-fbe0-4867-b1f0-fdb2a2bc424b)
+
 **Khi bạn ấn vào Icon note ở trên thanh AppBar sẽ xuất hiện phần cho bạn nhập để lưu ghi chú của mình**
+
 ![note](https://firebasestorage.googleapis.com/v0/b/camnangnauan-edaf6.appspot.com/o/takenote.png?alt=media&token=45531aa1-d009-4d0f-9b02-e43bcb3dbe6c)
+
 **Tiếp đến nếu bạn ấn vào Icon trái tim thì nó sẽ lưu món ăn đó vào danh sách món ăn ưa thích của bạn**
+
 ![thich](https://firebasestorage.googleapis.com/v0/b/camnangnauan-edaf6.appspot.com/o/thich.png?alt=media&token=07a59898-e296-4bac-8940-c864f79f76a0)
+
 **Danh sách món ăn ưa thích**(Nếu bạn ấn nút bên cạnh danh sách thì sẽ xoá món ăn đó khỏi danh sách món ăn ưa thích)
+
 ![dsthich](https://firebasestorage.googleapis.com/v0/b/camnangnauan-edaf6.appspot.com/o/dsthich.png?alt=media&token=6b4dd416-bbff-4436-8579-abd4b6893f5d)
 
 **Filter lọc món ăn**(Đây là kết quả sau khi lọc với mục được chọn là Cơm)
