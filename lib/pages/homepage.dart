@@ -106,12 +106,16 @@ class _HomePageState extends State<HomePage> {
               selectedColor: Colors.blue,
               backgroundColor: Colors.grey[300],
               checkmarkColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20), // Điều chỉnh bán kính để làm tròn các góc
+              ),
             ),
           );
         }).toList(),
       ),
     );
   }
+
 
   void handleFilterChipSelection(String selectedTypeMon) {
     setState(() {
@@ -142,7 +146,9 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Colors.orange,
         automaticallyImplyLeading: false, // loại bỏ nút back về
-        title: Text("Công thức nấu ăn"),
+        title: Text("Công thức nấu ăn",style: TextStyle(
+          color: Colors.white,),
+        ),
         flexibleSpace: Container(
           alignment: Alignment.centerRight,
           padding: EdgeInsets.only(right: 16.0),
