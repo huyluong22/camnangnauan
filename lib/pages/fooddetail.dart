@@ -140,7 +140,6 @@ class _FoodPageDetailState extends State<FoodPageDetail> {
       final List<dynamic> usersLiked = widget.UsersLike; // Sử dụng UsersLike từ widget
       final String currentUserUID = user.uid;
       isLiked = usersLiked.contains(currentUserUID); // Xác định isLiked dựa trên danh sách người dùng thích
-
       setState(() {}); // Cập nhật trạng thái của widget
     }
   }

@@ -1,3 +1,4 @@
+import 'package:camnangnauan/pages/chatgemini.dart';
 import 'package:camnangnauan/pages/favoritepage.dart';
 import 'package:camnangnauan/pages/fooddetail.dart';
 import 'package:camnangnauan/pages/searchpage.dart';
@@ -90,22 +91,28 @@ class _HomePageState extends State<HomePage> {
   }
 // Widget để hiển thị danh sách FilterChip
   Widget buildFilterChips() {
-    return Wrap(
-      spacing: 8.0,
-      children: typeMonList.map((typeMon) {
-        return FilterChip(
-          label: Text(typeMon),
-          onSelected: (bool selected) {
-            handleFilterChipSelection(typeMon);
-          },
-          selected: isSelected[typeMon] ?? false,
-          selectedColor: Colors.blue,
-          backgroundColor: Colors.grey[300],
-          checkmarkColor: Colors.white,
-        );
-      }).toList(),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: typeMonList.map((typeMon) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: FilterChip(
+              label: Text(typeMon),
+              onSelected: (bool selected) {
+                handleFilterChipSelection(typeMon);
+              },
+              selected: isSelected[typeMon] ?? false,
+              selectedColor: Colors.blue,
+              backgroundColor: Colors.grey[300],
+              checkmarkColor: Colors.white,
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
+
   void handleFilterChipSelection(String selectedTypeMon) {
     setState(() {
       // Đặt tất cả các giá trị về false trước khi đặt true cho filter chip được chọn
@@ -136,6 +143,20 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.orange,
         automaticallyImplyLeading: false, // loại bỏ nút back về
         title: Text("Công thức nấu ăn"),
+        flexibleSpace: Container(
+          alignment: Alignment.centerRight,
+          padding: EdgeInsets.only(right: 16.0),
+          child: GestureDetector(
+            onTap: () {
+              // Điều hướng đến trang chat của Gemini khi ấn vào hình ảnh
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ChatScreen()),
+              );
+            },
+            child: Image.asset('assets/images/gemini.png', width: 30, height: 30), // Thay đổi đường dẫn và kích thước ảnh theo yêu cầu của bạn
+          ),
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.orange,
