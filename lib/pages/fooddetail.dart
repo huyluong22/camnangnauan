@@ -288,28 +288,73 @@ class _FoodPageDetailState extends State<FoodPageDetail> {
             ),
             SizedBox(height: 16.0),
             Text(
-              'Tên món: ${widget.ten}',
+              '${widget.ten}',
               style: TextStyle(
-                fontSize: 20.0,
+                fontSize: 30.0,
                 fontWeight: FontWeight.bold,
                 color: Colors.white, // Màu chữ là màu trắng
               ),
             ),
             SizedBox(height: 8.0),
             Text(
-              'Thời gian: ${widget.thoiGian}',
+              'Loại món ăn: ${widget.typeMon}',
+              style: TextStyle(
+                fontSize: 16.0,
+                color: Colors.white, // Màu chữ là màu trắng
+              ),
+            ),
+            SizedBox(height: 16.0),
+            Text(
+              '${widget.moTa}',
               style: TextStyle(
                 fontSize: 16.0,
                 color: Colors.white, // Màu chữ là màu trắng
               ),
             ),
             SizedBox(height: 8.0),
+            Divider(color: Colors.white),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center, // Căn giữa các thành phần trong hàng
+              children: [
+                Icon(
+                  Icons.access_time, // Icon đồng hồ
+                  color: Colors.white, // Màu của icon
+                ),
+                SizedBox(width: 8.0), // Khoảng cách giữa Icon và Text
+                Text(
+                  '${widget.thoiGian}',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.white, // Màu chữ là màu trắng
+                  ),
+                ),
+              ],
+            ),
+            Divider(color: Colors.white),
+            SizedBox(height: 16.0),
             Text(
-              'Loại món: ${widget.typeMon}',
+              'Nguyên liệu:',
               style: TextStyle(
-                fontSize: 16.0,
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
                 color: Colors.white, // Màu chữ là màu trắng
               ),
+            ),
+            SizedBox(height: 8.0),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: extractNguyenLieu(widget.nguyenLieu).expand((bua) {
+                return [
+                  Text(
+                    bua.trim(),
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.white, // Màu chữ là màu trắng
+                    ),
+                  ),
+                  Divider(color: Colors.white), // Đường kẻ giữa các dòng
+                ];
+              }).toList(),
             ),
             SizedBox(height: 16.0),
             Text(
@@ -324,36 +369,6 @@ class _FoodPageDetailState extends State<FoodPageDetail> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: splitHuongDan(widget.huongDan).map((bua) {
-                return Text(
-                  bua.trim(),
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    color: Colors.white, // Màu chữ là màu trắng
-                  ),
-                );
-              }).toList(),
-            ),
-            SizedBox(height: 16.0),
-            Text(
-              'Mô tả: ${widget.moTa}',
-              style: TextStyle(
-                fontSize: 16.0,
-                color: Colors.white, // Màu chữ là màu trắng
-              ),
-            ),
-            SizedBox(height: 16.0),
-            Text(
-              'Nguyên liệu:',
-              style: TextStyle(
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.white, // Màu chữ là màu trắng
-              ),
-            ),
-            SizedBox(height: 8.0),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: extractNguyenLieu(widget.nguyenLieu).map((bua) {
                 return Text(
                   bua.trim(),
                   style: TextStyle(
