@@ -137,10 +137,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print('Danh sách các URL ảnh:');
-    imgList.forEach((url) {
-      print(url);
-    });
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -509,7 +505,7 @@ class _HomePageState extends State<HomePage> {
                           height: 600, // Đặt chiều cao tối đa của Container
                           child: SingleChildScrollView(
                             child: FutureBuilder(
-                              future: FirebaseFirestore.instance.collection('food').limit(20).get(),
+                              future: FirebaseFirestore.instance.collection('food').get(),
                               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                                 if (snapshot.connectionState == ConnectionState.waiting) {
                                   return CircularProgressIndicator();
@@ -632,21 +628,30 @@ class _HomePageState extends State<HomePage> {
 
   void searchFood(String searchText) async {
     final searchTextFormatted = formatSearchText(searchText);
+
     // Tạo một chuỗi chứa các ký tự đặc biệt để đảm bảo tìm kiếm chính xác
     final specialChar = String.fromCharCode(65535);
     final searchTextWithSpecialChar = '$searchTextFormatted$specialChar';
 
-    // Tạo truy vấn Firestore
-    final snapshot = await FirebaseFirestore.instance.collection('food')
+    // Truy vấn trên trường 'Ten'
+    var snapshot = await FirebaseFirestore.instance.collection('food')
         .where('Ten', isGreaterThanOrEqualTo: searchTextFormatted)
         .where('Ten', isLessThan: searchTextWithSpecialChar)
         .get();
+
+    // Nếu không tìm thấy kết quả trên trường 'Ten', thực hiện tìm kiếm trên trường 'normalizedname'
+    if (snapshot.docs.isEmpty) {
+      snapshot = await FirebaseFirestore.instance.collection('food')
+          .where('Normalizedname', isGreaterThanOrEqualTo: searchTextFormatted)
+          .where('Normalizedname', isLessThan: searchTextWithSpecialChar)
+          .get();
+    }
 
     // Lấy danh sách kết quả
     List<DocumentSnapshot> searchResults = snapshot.docs;
     print(searchResults);
 
-    // Chuyển hướng đến trang SearchPage và truyền từ khoá tìm kiếm
+    // Chuyển hướng đến trang SearchPage
     Navigator.push(
       context,
       MaterialPageRoute(
