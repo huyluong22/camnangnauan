@@ -10,7 +10,7 @@
 - Tra cứu qua chat bot Gemini
 # Cơ sở dữ liệu Firebase
  1 colletion có tên là **food** bao gồm các trường sau
-![dâtbase]([gs://camnangnauan-edaf6.appspot.com/database.png](https://firebasestorage.googleapis.com/v0/b/camnangnauan-edaf6.appspot.com/o/database.png?alt=media&token=67f21ee4-5537-4736-b4f5-1fec9a85cf4b))
+![database](https://firebasestorage.googleapis.com/v0/b/camnangnauan-edaf6.appspot.com/o/database.png?alt=media&token=67f21ee4-5537-4736-b4f5-1fec9a85cf4b)
 # Hướng dẫn cài đặt
 Phải có Android Studio, Firebase
 **Đây là phiên bản Flutter và Dart hiện tại của tôi**
