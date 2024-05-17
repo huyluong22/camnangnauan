@@ -1,29 +1,16 @@
 # Cẩm nang nấu ăn
-
-Trong thế giới hiện đại ngày nay, nhu cầu về việc chuẩn bị bữa ăn ngon và lành mạnh ngày càng trở nên quan trọng hơn bao giờ hết, không những giúp cải thiện sức khoẻ còn giúp người dùng có thể nắm bắt được thời gian trong việc chế biến món ăn để có thể làm những công việc khác.
-
-
 # Các chức năng của ứng dụng
 - Tạo tài khoản
 - Tra cứu thông tin món ăn
 - Thêm món ăn vào danh sách ưa thích
-- Thêm note cho món ăn
+- Thêm note, chỉnh note cho món ăn
 - Tra cứu món ăn thông qua filter
 - Gợi ý, đề xuất món ăn 
 - Tìm lại mật khẩu cho người dùng
 - Tra cứu qua chat bot Gemini
 # Cơ sở dữ liệu Firebase
  1 colletion có tên là **food** bao gồm các trường sau
-- Anh (string): Đường dẫn token của ảnh khi lưu trên store ở Firebase
-- HuongDan (string): Thông tin chi tiết về cách nấu món ăn
-- MoTa (string): Một đoạn mô tả ngắn về món ăn
-- NguyenLieu (string): Các nguyên liệu cần thiết để nấu món ăn
-- Ten (string): Tên món ăn
-- ThoiGian (string): Thời gian dự kiến để nấu món ăn
-- TypeMon (string): Loại món ăn
-- UserNotes (array): Mảng chứa mã định danh của người dùng và các ghi chú mà người dùng đã viết, ví dụ : (rSXhTre7PFNcLvCHBKdvAB3uRHo2-Cook 5 minutes Change butter Layout 5 times")
-- UsersLike (array): Chứa mã định danh của người dùng
-- views (number): Lượt xem của mỗi món ăn
+![dâtbase]([gs://camnangnauan-edaf6.appspot.com/database.png](https://firebasestorage.googleapis.com/v0/b/camnangnauan-edaf6.appspot.com/o/database.png?alt=media&token=67f21ee4-5537-4736-b4f5-1fec9a85cf4b))
 # Hướng dẫn cài đặt
 Phải có Android Studio, Firebase
 **Đây là phiên bản Flutter và Dart hiện tại của tôi**
@@ -32,7 +19,6 @@ Phải có Android Studio, Firebase
 
 Bạn có thể cập nhật phiên bản Dart thông qua Android Studio như sau : **Tool > Flutter > Upgrade Flutter**
 Sau đó bạn có thể Download code trên về và khởi chạy.
-# Lưu ý nếu bạn đang sử dụng Emulator để khởi chạy ứng dụng trên thì lưu ý nên có bộ gõ tiếng Việt để tìm kiếm được chính xác
 # Một số hình ảnh minh hoạ
 **Trang đăng nhập**
 
